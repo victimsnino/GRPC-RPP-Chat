@@ -33,10 +33,12 @@ endmacro()
 
 add_proto_library(proto chat.proto)
 
-add_executable(server server.cpp)
+add_executable(server server.cpp common.h)
+target_include_directories(server PRIVATE .)
 target_link_libraries(server PRIVATE gRPC::grpc++ proto)
 set_target_properties(server PROPERTIES FOLDER grpc/chat)
 
-add_executable(client client.cpp)
+add_executable(client client.cpp common.h)
 target_link_libraries(client PRIVATE gRPC::grpc++ proto)
 set_target_properties(client PROPERTIES FOLDER grpc/chat)
+target_include_directories(client PRIVATE .)

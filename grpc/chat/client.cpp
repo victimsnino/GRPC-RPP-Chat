@@ -2,7 +2,7 @@
 #include <chat.grpc.pb.h>
 #include <grpc++/create_channel.h>
 
-#define ENSURE(condition) if (!condition) { std::cout << " condition " << #condition << " failed"; throw 0; }
+#include "common.h"
 
 class ChatClient {
 public:
