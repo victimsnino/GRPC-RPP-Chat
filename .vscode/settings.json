@@ -1,0 +1,11 @@
+{
+    "clangd.arguments": [
+      "--header-insertion=never",
+      "--background-index",
+      "--clang-tidy",
+      "-j=32",
+      "--path-mappings=${workspaceFolder}=${workspaceFolder}/_build/"
+    ],
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/_build/compile_commands.json",
+    "clangd.onConfigChanged": "restart",
+}
