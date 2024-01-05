@@ -2,12 +2,13 @@
 
 #include <auth_server.hpp>
 
-TEST_CASE("ServerHandlesLogin") 
+TEST_CASE("ServerHandlesLogin")
 {
-    constexpr auto login = "test";
-    constexpr auto password = "password";
-    AuthService::Service server{{{login, AuthService::Service::hash_password(password)}}};
-    AuthService::Proto::LoginRequest request{};
+    constexpr auto                    login    = "test";
+    constexpr auto                    password = "password";
+    constexpr auto                    secret   = "secret";
+    AuthService::Service              server{{{login, AuthService::Service::HashPassword(password)}}, secret};
+    AuthService::Proto::LoginRequest  request{};
     AuthService::Proto::LoginResponse response{};
 
     const auto make_request = [&]() {
@@ -24,32 +25,35 @@ TEST_CASE("ServerHandlesLogin")
         return response.status();
     };
 
-    SECTION("Empty request") 
+    SECTION("Empty request")
     {
         CHECK(parse_error_response() == AuthService::Proto::FailedLoginResponse::EmptyLogin);
 
-        SECTION("set random login") 
+        SECTION("set random login")
         {
             request.set_login("123");
             CHECK(parse_error_response() == AuthService::Proto::FailedLoginResponse::EmptyPassword);
 
-            SECTION("set random password") 
+            SECTION("set random password")
             {
                 request.set_password("123");
                 CHECK(parse_error_response() == AuthService::Proto::FailedLoginResponse::UserNotFound);
             }
         }
     }
+
     SECTION("Valid user with invalid password")
     {
         request.set_login(login);
         request.set_password("123");
         CHECK(parse_error_response() == AuthService::Proto::FailedLoginResponse::InvalidPassword);
     }
+
     SECTION("Valid user valid password")
     {
         request.set_login(login);
         request.set_password(password);
         CHECK(make_request().ok());
+        CHECK(response.token() == AuthService::Service::MakeToken(request.login(), secret));
     }
 }

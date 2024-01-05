@@ -7,7 +7,8 @@ add_library(auth_server
 target_link_libraries(auth_server 
     PUBLIC
         auth_proto 
-        gRPC::grpc++ 
+        gRPC::grpc++
+        jwt-cpp
     PRIVATE 
         common
 )

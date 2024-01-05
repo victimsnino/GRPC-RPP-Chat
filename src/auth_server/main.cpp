@@ -1,13 +1,12 @@
 #include <auth_server.hpp>
-
 #include <grpc++/server_builder.h>
 
 #include <string>
 
 int main()
 {
-   AuthService::Service service{{{"test", AuthService::Service::hash_password("test")}}};
-   grpc::ServerBuilder builder{};
+    AuthService::Service service{{{"test", AuthService::Service::HashPassword("test")}}, "secret"};
+    grpc::ServerBuilder  builder{};
 
     std::string server_address("0.0.0.0:50051");
 

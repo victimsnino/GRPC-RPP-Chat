@@ -8,6 +8,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
+    string token = 1;
 }
 
 message FailedLoginResponse {

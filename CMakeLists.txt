@@ -21,29 +21,35 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ###################################### OPTIONS ##################################
 option(BUILD_TESTS      "Build unit tests tree." ON)
 
-if (BUILD_TESTS)
-  Include(FetchContent)
+macro(add_3rdparty TARGET REPO TAG)
+    Include(FetchContent)
 
-  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build SHARED libraries")
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build SHARED libraries")
 
-  FetchContent_Declare(snitch
-      GIT_REPOSITORY https://github.com/cschreib/snitch.git
-      GIT_TAG        main
-      GIT_SHALLOW TRUE
+    FetchContent_Declare(${TARGET}
+        GIT_REPOSITORY ${REPO}
+        GIT_TAG        ${TAG}
+        GIT_SHALLOW TRUE
     )
-  FetchContent_MakeAvailable(snitch)
+    FetchContent_MakeAvailable(${TARGET})
 
-  target_compile_options(snitch PRIVATE "-w")
-  set_target_properties(snitch PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:snitch,INTERFACE_INCLUDE_DIRECTORIES>)
-  set_target_properties(snitch PROPERTIES CXX_CLANG_TIDY "")
-  set_target_properties(snitch PROPERTIES CXX_CPPCHECK "")
-  set_target_properties(snitch PROPERTIES FOLDER 3rdparty)
-endif()
-
+    # target_compile_options(${TARGET} PRIVATE "-w")
+    set_target_properties(${TARGET} PROPERTIES CXX_CLANG_TIDY "")
+    set_target_properties(${TARGET} PROPERTIES CXX_CPPCHECK "")
+    set_target_properties(${TARGET} PROPERTIES FOLDER 3rdparty)
+endmacro()
 #################################################################################
+
 
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+add_3rdparty(jwt-cpp https://github.com/Thalhammer/jwt-cpp v0.7.0)
+
+if (BUILD_TESTS)
+  add_3rdparty(snitch https://github.com/cschreib/snitch.git main)
+endif()
 
 macro(add_proto_library TARGET FILES)
     file(RELATIVE_PATH RELATIVE_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
