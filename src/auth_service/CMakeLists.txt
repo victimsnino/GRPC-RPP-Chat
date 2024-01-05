@@ -1,10 +1,10 @@
-add_library(auth_server 
+add_library(auth_service 
     STATIC 
-        auth_server.cpp
-        auth_server.hpp
+        auth_service.cpp
+        auth_service.hpp
 )
 
-target_link_libraries(auth_server 
+target_link_libraries(auth_service 
     PUBLIC
         auth_proto 
         gRPC::grpc++
@@ -13,11 +13,10 @@ target_link_libraries(auth_server
         common
 )
 
-target_include_directories(auth_server PUBLIC .)
+target_include_directories(auth_service PUBLIC .)
 
 if (BUILD_TESTS)
     add_subdirectory(ut)
 endif()
 
-add_subdirectory(app)
 add_subdirectory(proto)

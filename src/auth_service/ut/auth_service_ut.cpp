@@ -1,6 +1,6 @@
 #include <snitch/snitch.hpp>
 
-#include <auth_server.hpp>
+#include <auth_service.hpp>
 
 TEST_CASE("ServerHandlesLogin")
 {

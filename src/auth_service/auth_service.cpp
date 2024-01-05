@@ -1,4 +1,4 @@
-#include "auth_server.hpp"
+#include "auth_service.hpp"
 
 #include <auth.pb.h>
 #include <common.hpp>
@@ -30,7 +30,7 @@ namespace AuthService
     std::string Service::CreateToken(std::string login, std::string secret)
     {
         return jwt::create()
-            .set_issuer("auth_server")
+            .set_issuer("auth_service")
             .set_payload_claim("login", jwt::claim(std::move(login)))
             .sign(jwt::algorithm::hs256{std::move(secret)});
     }

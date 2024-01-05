@@ -1,4 +1,4 @@
-#include <auth_server.hpp>
+#include <auth_service.hpp>
 #include <grpc++/server_builder.h>
 
 #include <string>

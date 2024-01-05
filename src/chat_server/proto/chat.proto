@@ -3,7 +3,7 @@ syntax = "proto3";
 package ChatService;
 
 message Event {
-    message Text {
+    message Message {
         string text = 1;
     }
     message Login {
@@ -13,12 +13,12 @@ message Event {
         string name = 1;
     }
     oneof Event {
-        Text text = 1;
+        Message message = 1;
         Login login = 2;
         Logout logout = 3;
     }
 }
 
 service Server {
-    rpc ChatStream (stream Event.Text) returns (stream Event) {}
+    rpc ChatStream (stream Event.Message) returns (stream Event) {}
 }
