@@ -1,0 +1,1 @@
+add_proto_library(auth_proto auth.proto)

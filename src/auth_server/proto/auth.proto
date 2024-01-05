@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package AuthService.Proto;
+
+message LoginRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+}
+
+message FailedLoginResponse {
+    enum Status {
+        EmptyLogin = 0;
+        EmptyPassword = 1;
+        UserNotFound = 2;
+        InvalidPassword = 3;
+    }
+    Status status = 1;
+}
+
+service Server {
+    rpc Login(LoginRequest) returns (LoginResponse) {}
+}

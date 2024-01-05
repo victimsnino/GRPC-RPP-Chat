@@ -1,0 +1,1 @@
+add_proto_library(chat_proto chat.proto)

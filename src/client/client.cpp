@@ -2,7 +2,7 @@
 #include <chat.grpc.pb.h>
 #include <grpc++/create_channel.h>
 
-#include "common.h"
+#include <common.hpp>
 
 class ChatClient {
 public:

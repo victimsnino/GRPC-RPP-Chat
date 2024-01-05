@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-message Message {
+package ChatService;
+
+message Event {
     message Text {
         string text = 1;
     }
@@ -18,5 +20,5 @@ message Message {
 }
 
 service Server {
-    rpc ChatStream (stream Message.Text) returns (stream Message) {}
+    rpc ChatStream (stream Event.Text) returns (stream Event) {}
 }

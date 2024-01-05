@@ -2,7 +2,7 @@
 #include <chat.grpc.pb.h>
 #include <grpc++/server_builder.h>
 
-#include "common.h"
+#include <common.hpp>
 
 class ChatServer final : public Server::Service {
 public:
