@@ -1,0 +1,2 @@
+add_executable(auth_server_app main.cpp)
+target_link_libraries(auth_server_app PRIVATE auth_server)

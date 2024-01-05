@@ -1,5 +1,23 @@
-add_executable(auth_server_main main.cpp)
-target_link_libraries(auth_server_main PRIVATE auth_server)
+add_library(auth_server 
+    STATIC 
+        auth_server.cpp
+        auth_server.hpp
+)
 
-add_subdirectory(server)
+target_link_libraries(auth_server 
+    PUBLIC
+        auth_proto 
+        gRPC::grpc++
+        jwt-cpp
+    PRIVATE 
+        common
+)
+
+target_include_directories(auth_server PUBLIC .)
+
+if (BUILD_TESTS)
+    add_subdirectory(ut)
+endif()
+
+add_subdirectory(app)
 add_subdirectory(proto)

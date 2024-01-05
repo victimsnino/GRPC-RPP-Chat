@@ -1,8 +1,2 @@
-add_executable(client 
-    client.cpp)
-
-target_link_libraries(client 
-    PRIVATE 
-        gRPC::grpc++ 
-        proto 
-        common)
+add_subdirectory(client_auth)
+add_subdirectory(app)
