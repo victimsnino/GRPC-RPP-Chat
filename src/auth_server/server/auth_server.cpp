@@ -27,7 +27,7 @@ namespace AuthService
         return std::hash<std::string_view>{}(data);
     }
 
-    std::string Service::MakeToken(std::string login, std::string secret)
+    std::string Service::CreateToken(std::string login, std::string secret)
     {
         return jwt::create()
             .set_issuer("auth_server")
@@ -53,7 +53,7 @@ namespace AuthService
         if (itr->second != HashPassword(request->password()))
             return BuildStatus(grpc::StatusCode::UNAUTHENTICATED, "Invalid password", Proto::FailedLoginResponse::InvalidPassword);
 
-        response->set_token(MakeToken(request->login(), m_secret));
+        response->set_token(CreateToken(request->login(), m_secret));
         return grpc::Status::OK;
     }
 }

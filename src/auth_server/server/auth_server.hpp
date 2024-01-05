@@ -15,7 +15,7 @@ namespace AuthService
 
         static size_t HashPassword(std::string_view data);
 
-        static std::string MakeToken(std::string login, std::string secret);
+        static std::string CreateToken(std::string login, std::string secret);
 
     private:
         std::unordered_map<std::string, size_t> m_users{};

@@ -54,6 +54,6 @@ TEST_CASE("ServerHandlesLogin")
         request.set_login(login);
         request.set_password(password);
         CHECK(make_request().ok());
-        CHECK(response.token() == AuthService::Service::MakeToken(request.login(), secret));
+        CHECK(response.token() == AuthService::Service::CreateToken(request.login(), secret));
     }
 }
