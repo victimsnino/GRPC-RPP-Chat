@@ -153,5 +153,3 @@ Standard: c++20
 TabWidth: 0
 UseCRLF: true
 UseTab: Never
-NamespaceMacros: ['BENCHMARK', 'SECTION']
-StatementAttributeLikeMacros: ['RPP_NO_UNIQUE_ADDRESS']
