@@ -1,2 +1,3 @@
-add_subdirectory(client_auth)
+add_subdirectory(auth_client)
+add_subdirectory(chat_client)
 add_subdirectory(app)

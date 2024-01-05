@@ -2,7 +2,7 @@
 #include <auth.pb.h>
 #include <grpc++/create_channel.h>
 
-namespace ClientAuth
+namespace AuthClient
 {
     std::variant<std::string, grpc::Status, AuthService::Proto::FailedLoginResponse> Authenicate(std::string login, std::string password)
     {

@@ -6,6 +6,6 @@
 #include <string>
 #include <variant>
 
-namespace ClientAuth {
+namespace AuthClient {
     std::variant<std::string, grpc::Status, AuthService::Proto::FailedLoginResponse> Authenicate(std::string login, std::string password);
 }

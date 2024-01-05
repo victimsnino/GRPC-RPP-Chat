@@ -7,15 +7,16 @@ message Event {
         string text = 1;
     }
     message Login {
-        string name = 1;
     }
     message Logout {
-        string name = 1;
     }
+
+    string user = 1;
+    
     oneof Event {
-        Message message = 1;
-        Login login = 2;
-        Logout logout = 3;
+        Message message = 2;
+        Login login = 3;
+        Logout logout = 4;
     }
 }
 

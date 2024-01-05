@@ -1,5 +1,5 @@
 
-#include <client_auth.hpp>
+#include <auth_client.hpp>
 
 std::string Authenicate()
 {
@@ -12,7 +12,7 @@ std::string Authenicate()
         std::cout << "Enter password: ";
         std::cin >> password;
 
-        const auto result = ClientAuth::Authenicate(login, password);
+        const auto result = AuthClient::Authenicate(login, password);
         if (const auto token = std::get_if<std::string>(&result))
             return *token;
 
