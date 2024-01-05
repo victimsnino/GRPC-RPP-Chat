@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ChatService;
+package ChatService.Proto;
 
 message Event {
     message Message {

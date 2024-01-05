@@ -5,7 +5,7 @@
 
 int main()
 {
-    AuthService::Service service{{{"test", AuthService::Service::HashPassword("test")}}, "secret"};
+    AuthService::Service service{{{"test", AuthService::Service::HashPassword("test")}, {"test2", AuthService::Service::HashPassword("test")}}, "secret"};
     grpc::ServerBuilder  builder{};
 
     std::string server_address("0.0.0.0:50051");

@@ -45,6 +45,7 @@ find_package(gRPC CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 add_3rdparty(jwt-cpp https://github.com/Thalhammer/jwt-cpp v0.7.0)
+add_3rdparty(rpp https://github.com/victimsnino/ReactivePlusPlus v2)
 
 if (BUILD_TESTS)
   add_3rdparty(snitch https://github.com/cschreib/snitch.git main)
