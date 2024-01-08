@@ -5,6 +5,8 @@ target_link_libraries(chat_client
         gRPC::grpc++ 
         chat_proto
         rpp
+    PRIVATE
+        common
 
 )
 

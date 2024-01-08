@@ -41,9 +41,17 @@ namespace ChatService
     {
         class Reactor final : public grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>
         {
+            static auto InitObserver(const rpp::dynamic_observer<UserObservable>& user_observables)
+            {
+                UserSubject subject{};
+                user_observables.on_next(UserObservable{"user", subject.get_observable()});
+                return subject.get_observer();
+            }
+
         public:
             Reactor(const rpp::dynamic_observer<UserObservable>& user_observables, const rpp::dynamic_observable<Proto::Event>& all_events)
-                : m_disposable{all_events
+                : m_observer{InitObserver(user_observables)}
+                , m_disposable{all_events
                                | rpp::ops::subscribe_with_disposable([this](const Proto::Event& user_events) {
                                      std::lock_guard lock{m_write_mutex};
                                      m_write.push_back(user_events);
@@ -52,7 +60,7 @@ namespace ChatService
                                      }
                                  })}
             {
-                user_observables.on_next(UserObservable{"user", m_subject.get_observable()});
+                
 
                 StartRead(&m_read);
             }
@@ -67,14 +75,14 @@ namespace ChatService
                     return;
                 }
 
-                m_subject.get_observer().on_next(m_read);
+                m_observer.on_next(m_read);
                 StartRead(&m_read);
             }
 
             void OnWriteDone(bool ok) override 
             {
                 ENSURE(ok);
-                
+
                 std::lock_guard lock{m_write_mutex};
                 ENSURE(!m_write.empty());
                 m_write.pop_front();
@@ -87,19 +95,19 @@ namespace ChatService
             void OnDone() override 
             {
                 m_disposable.dispose();
-                m_subject.get_observer().on_completed();
+                m_observer.on_completed();
                 delete this;
             }
 
         private:
-            UserSubject               m_subject{};
-            rpp::disposable_wrapper   m_disposable{};
+            decltype(std::declval<UserSubject>().get_observer()) m_observer{};
+            rpp::disposable_wrapper                              m_disposable{};
 
             Proto::Event::Message m_read{};
 
             std::mutex               m_write_mutex{};
             std::deque<Proto::Event> m_write{};
-     };
+        };
 
         const auto new_handler = new Reactor(m_state.user_observables, m_state.all_events);
         return new_handler;

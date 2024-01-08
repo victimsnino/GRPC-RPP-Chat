@@ -2,7 +2,7 @@
 
 #include <chat.grpc.pb.h>
 
-#include <rpp/rpp.hpp>
+#include <rpp/subjects/publish_subject.hpp>
 
 namespace ChatService 
 {

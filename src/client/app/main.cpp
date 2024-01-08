@@ -35,5 +35,15 @@ int main()
 {
     const auto token = Authenicate();
     std::cout << "Authenicated with token " << token << std::endl;
-    ChatClient::Handler h{token};
+    ChatClient::Handler chat{token};
+
+    chat.GetEvents().subscribe([](const ChatService::Proto::Event& ev) { std::cout << ev.ShortDebugString() << std::endl; });
+
+    std::string in{};
+    while(true)
+    {
+        std::cin >> in;
+        chat.SendMessage(in);
+        in.clear();
+    }
 }
