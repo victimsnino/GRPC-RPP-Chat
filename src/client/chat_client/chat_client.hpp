@@ -1,16 +1,21 @@
 #pragma once
 
 #include <chat.pb.h>
-#include <grpc++/support/sync_stream.h>
+#include <grpc++/client_context.h>
+
 #include <string>
 
-
-namespace ChatClient {
+namespace ChatClient
+{
     class Handler
     {
     public:
         Handler(std::string token);
+        ~Handler() noexcept;
+
+        void SendMessage();
+
     private:
-        std::unique_ptr<grpc::ClientReaderWriter<ChatService::Proto::Event_Message, ChatService::Proto::Event>> m_stream;
+        grpc::ClientContext m_context{};
     };
 }

@@ -1,5 +1,6 @@
 
 #include <auth_client.hpp>
+#include <chat_client.hpp>
 
 std::string Authenicate()
 {
@@ -34,4 +35,5 @@ int main()
 {
     const auto token = Authenicate();
     std::cout << "Authenicated with token " << token << std::endl;
+    ChatClient::Handler h{token};
 }

@@ -2,6 +2,8 @@
 
 #include <rpp/rpp.hpp>
 
+#include <common.hpp>
+
 namespace ChatService 
 {
     Service::State Service::InitState()
@@ -29,7 +31,7 @@ namespace ChatService
                     
         events.subscribe([](const Proto::Event& ev)
         {
-            std::cout << ev.Utf8DebugString();
+            std::cout << ev.Utf8DebugString() << std::endl;
         });
 
         return State{.user_observables = subj.get_observer().as_dynamic(), .all_events = events, .disposable = events.connect()};
@@ -37,38 +39,69 @@ namespace ChatService
     
     grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>* Service::ChatStream(grpc::CallbackServerContext* ctx)
     {
-        struct Result final : public grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>
+        class Reactor final : public grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>
         {
+        public:
+            Reactor(const rpp::dynamic_observer<UserObservable>& user_observables, const rpp::dynamic_observable<Proto::Event>& all_events)
+                : m_disposable{all_events
+                               | rpp::ops::subscribe_with_disposable([this](const Proto::Event& user_events) {
+                                     std::lock_guard lock{m_write_mutex};
+                                     m_write.push_back(user_events);
+                                     if (m_write.size() == 1) {
+                                        StartWrite(&m_write.front());
+                                     }
+                                 })}
+            {
+                user_observables.on_next(UserObservable{"user", m_subject.get_observable()});
+
+                StartRead(&m_read);
+            }
+
+        private:
+
             void OnReadDone(bool ok) override 
             {
                 if (!ok)
                 {
-                    subject.get_observer().on_completed();
                     Finish(grpc::Status::OK);
                     return;
                 }
 
-                subject.get_observer().on_next(message);
-                StartRead(&message);
+                m_subject.get_observer().on_next(m_read);
+                StartRead(&m_read);
             }
 
-            void OnWriteDone(bool /*ok*/) override 
+            void OnWriteDone(bool ok) override 
             {
+                ENSURE(ok);
+                
+                std::lock_guard lock{m_write_mutex};
+                ENSURE(!m_write.empty());
+                m_write.pop_front();
 
+                if (!m_write.empty()) {
+                    StartWrite(&m_write.front());
+                }
             }
 
             void OnDone() override 
             {
-                subject.get_observer().on_completed();
+                m_disposable.dispose();
+                m_subject.get_observer().on_completed();
                 delete this;
             }
 
-            UserSubject subject{};
-            Proto::Event::Message message{};
-        };
+        private:
+            UserSubject               m_subject{};
+            rpp::disposable_wrapper   m_disposable{};
 
-        const auto new_handler = new Result();
-        m_state.user_observables.on_next(UserObservable{"user", new_handler->subject.get_observable()});
+            Proto::Event::Message m_read{};
+
+            std::mutex               m_write_mutex{};
+            std::deque<Proto::Event> m_write{};
+     };
+
+        const auto new_handler = new Reactor(m_state.user_observables, m_state.all_events);
         return new_handler;
     }
 }
