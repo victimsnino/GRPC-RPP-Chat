@@ -39,6 +39,10 @@ namespace ChatService
     
     grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>* Service::ChatStream(grpc::CallbackServerContext* ctx)
     {
+        const auto itr = ctx->client_metadata().find("x-custom-auth-ticket");
+        if (itr != ctx->client_metadata().end()) {
+            std::cout << itr->second << std::endl;
+        }
         class Reactor final : public grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>
         {
             static auto InitObserver(const rpp::dynamic_observer<UserObservable>& user_observables)

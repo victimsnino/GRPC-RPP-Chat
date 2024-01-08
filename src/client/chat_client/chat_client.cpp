@@ -20,9 +20,12 @@ namespace ChatClient
             {
             }
 
+            bool IsBlocking() const override { return false; }
+            const char* GetType() const override { return "x-custom-auth-ticket"; }
+
             grpc::Status GetMetadata(grpc::string_ref service_url, grpc::string_ref method_name, const grpc::AuthContext& channel_auth_context, std::multimap<grpc::string, grpc::string>* metadata) override
             {
-                metadata->insert(std::make_pair("Authorization", ticket_));
+                metadata->insert(std::make_pair("x-custom-auth-ticket", ticket_));
                 return grpc::Status::OK;
             }
 
@@ -116,7 +119,7 @@ namespace ChatClient
                                              return m;
                                          }),
                                          events.get_observer().as_dynamic());
-        ChatService::Proto::Server::NewStub(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()))->async()->ChatStream(&ctx, reactor);
+        ChatService::Proto::Server::NewStub(grpc::CreateChannel("localhost:50051", grpc::experimental::LocalCredentials(grpc_local_connect_type::LOCAL_TCP)))->async()->ChatStream(&ctx, reactor);
         reactor->Init();
 
         return {.events = events.get_observable().as_dynamic(), .messages = messages.get_observer().as_dynamic()};

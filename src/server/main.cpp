@@ -4,6 +4,7 @@
 
 #include <string>
 
+
 int main()
 {
     AuthService::Service auth_service{{{"test", AuthService::Service::HashPassword("test")}, {"test2", AuthService::Service::HashPassword("test")}}, "secret"};
@@ -13,7 +14,7 @@ int main()
 
     std::string server_address("0.0.0.0:50051");
 
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.AddListeningPort(server_address, grpc::experimental::LocalServerCredentials(grpc_local_connect_type::LOCAL_TCP));
     builder.RegisterService(&auth_service);
     builder.RegisterService(&chat_service);
 
