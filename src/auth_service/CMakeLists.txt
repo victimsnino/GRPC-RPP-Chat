@@ -8,8 +8,8 @@ target_link_libraries(auth_service
     PUBLIC
         auth_proto 
         gRPC::grpc++
-        jwt-cpp
     PRIVATE 
+        jwt-cpp
         common
 )
 

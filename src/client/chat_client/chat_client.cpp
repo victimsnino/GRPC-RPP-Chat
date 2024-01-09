@@ -21,11 +21,11 @@ namespace ChatClient
             }
 
             bool IsBlocking() const override { return false; }
-            const char* GetType() const override { return "x-custom-auth-ticket"; }
+            const char* GetType() const override { return Consts::g_authenication_header; }
 
             grpc::Status GetMetadata(grpc::string_ref service_url, grpc::string_ref method_name, const grpc::AuthContext& channel_auth_context, std::multimap<grpc::string, grpc::string>* metadata) override
             {
-                metadata->insert(std::make_pair("x-custom-auth-ticket", ticket_));
+                metadata->insert(std::make_pair(Consts::g_authenication_header, ticket_));
                 return grpc::Status::OK;
             }
 

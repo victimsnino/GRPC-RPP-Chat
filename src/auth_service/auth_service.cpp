@@ -30,8 +30,8 @@ namespace AuthService
     std::string Service::CreateToken(std::string login, std::string secret)
     {
         return jwt::create()
-            .set_issuer("auth_service")
-            .set_payload_claim("login", jwt::claim(std::move(login)))
+            .set_issuer(Consts::g_issuer)
+            .set_payload_claim(Consts::g_login_field, jwt::claim(std::move(login)))
             .sign(jwt::algorithm::hs256{std::move(secret)});
     }
 

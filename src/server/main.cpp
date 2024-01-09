@@ -3,11 +3,12 @@
 #include <grpc++/server_builder.h>
 
 #include <string>
+#include <common.hpp>
 
 
 int main()
 {
-    AuthService::Service auth_service{{{"test", AuthService::Service::HashPassword("test")}, {"test2", AuthService::Service::HashPassword("test")}}, "secret"};
+    AuthService::Service auth_service{{{"test", AuthService::Service::HashPassword("test")}, {"test2", AuthService::Service::HashPassword("test")}}, Consts::g_secret_seed};
     ChatService::Service chat_service{};
 
     grpc::ServerBuilder  builder{};

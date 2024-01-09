@@ -11,6 +11,7 @@ target_link_libraries(chat_service
         chat_proto 
         rpp
     PRIVATE 
+        jwt-cpp
         common
 )
 
