@@ -49,7 +49,7 @@ namespace ChatClient
                         StartWritesDone();
                     })}
                 {
-                    
+
                 }
 
                 void Init()
@@ -59,7 +59,7 @@ namespace ChatClient
                 }
 
             private:
-                void OnReadDone(bool ok) override 
+                void OnReadDone(bool ok) override
                 {
                     ENSURE(ok);
 
@@ -67,7 +67,7 @@ namespace ChatClient
                     StartRead(&m_read);
                 }
 
-                void OnWriteDone(bool ok) override 
+                void OnWriteDone(bool ok) override
                 {
                     ENSURE(ok);
 
@@ -97,7 +97,7 @@ namespace ChatClient
                 std::deque<ChatService::Proto::Event::Message> m_write{};
         };
 
-        
+
     }
 
     Handler::Handler(const std::string& token)
@@ -109,10 +109,10 @@ namespace ChatClient
     {
         ctx.set_credentials(grpc::MetadataCredentialsFromPlugin(std::make_unique<Authenticator>(token)));
 
-        rpp::subjects::serialized_subject<std::string>            messages{};
+        rpp::subjects::serialized_publish_subject<std::string>    messages{};
         rpp::subjects::publish_subject<ChatService::Proto::Event> events{};
 
-        const auto reactor = new Reactor(messages.get_observable() | rpp::ops::map([](const std::string& txt) 
+        const auto reactor = new Reactor(messages.get_observable() | rpp::ops::map([](const std::string& txt)
                                          {
                                              ChatService::Proto::Event::Message m{};
                                              m.set_text(txt);

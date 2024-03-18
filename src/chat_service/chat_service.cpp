@@ -6,7 +6,7 @@
 #include <common.hpp>
 
 
-namespace ChatService 
+namespace ChatService
 {
     namespace
     {
@@ -31,6 +31,7 @@ namespace ChatService
             Reactor(const std::string& name, const rpp::dynamic_observer<UserObservable>& user_observables, const rpp::dynamic_observable<Proto::Event>& all_events)
                 : m_observer{InitObserver(name, user_observables)}
                 , m_disposable{all_events
+                               | rpp::ops::filter([name](const Proto::Event& user_events){return user_events.user() != name; })
                                | rpp::ops::subscribe_with_disposable([this](const Proto::Event& user_events) {
                                      std::lock_guard lock{m_write_mutex};
                                      m_write.push_back(user_events);
@@ -44,7 +45,7 @@ namespace ChatService
 
         private:
 
-            void OnReadDone(bool ok) override 
+            void OnReadDone(bool ok) override
             {
                 if (!ok)
                 {
@@ -56,7 +57,7 @@ namespace ChatService
                 StartRead(&m_read);
             }
 
-            void OnWriteDone(bool ok) override 
+            void OnWriteDone(bool ok) override
             {
                 ENSURE(ok);
 
@@ -69,7 +70,7 @@ namespace ChatService
                 }
             }
 
-            void OnDone() override 
+            void OnDone() override
             {
                 m_disposable.dispose();
                 m_observer.on_completed();
@@ -86,9 +87,10 @@ namespace ChatService
             std::deque<Proto::Event> m_write{};
         };
     }
+
     Service::State Service::InitState()
     {
-        rpp::subjects::serialized_subject<UserObservable> subj{};
+        rpp::subjects::serialized_publish_subject<UserObservable> subj{};
 
         auto events = subj.get_observable()
                     | rpp::ops::flat_map([](const UserObservable& observable) {
@@ -118,7 +120,7 @@ namespace ChatService
 
         return State{.user_observables = subj.get_observer().as_dynamic(), .all_events = events, .disposable = events.connect()};
     }
-    
+
     grpc::ServerBidiReactor<Proto::Event_Message, Proto::Event>* Service::ChatStream(grpc::CallbackServerContext* ctx)
     {
         const auto itr = ctx->client_metadata().find(Consts::g_authenication_header);
@@ -135,14 +137,14 @@ namespace ChatService
 
         if (err)
             return new ReturnStatusReactor(grpc::Status{grpc::StatusCode::UNAUTHENTICATED, std::string{"Invalid  token "} + err.message()});
-        
+
         const auto payload = decoded.get_payload_json();
         const auto value_itr = payload.find(Consts::g_login_field);
         if (value_itr == payload.end()) {
             return new ReturnStatusReactor(grpc::Status{grpc::StatusCode::UNAUTHENTICATED, "Ivalid  json payload"});
         }
 
-        
+
 
         const auto new_handler = new Reactor(value_itr->second.get<std::string>(), m_state.user_observables, m_state.all_events);
         return new_handler;

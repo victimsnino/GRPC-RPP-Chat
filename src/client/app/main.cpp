@@ -42,7 +42,7 @@ int main()
     std::string in{};
     while(true)
     {
-        std::cin >> in;
+        std::getline(std::cin, in);
         chat.SendMessage(in);
         in.clear();
     }

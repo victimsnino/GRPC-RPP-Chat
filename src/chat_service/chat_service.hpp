@@ -2,14 +2,16 @@
 
 #include <chat.grpc.pb.h>
 
+#include <rpp/observers/dynamic_observer.hpp>
+#include <rpp/observables/dynamic_observable.hpp>
 #include <rpp/subjects/publish_subject.hpp>
 
-namespace ChatService 
+namespace ChatService
 {
     using UserSubject    = rpp::subjects::publish_subject<Proto::Event::Message>;
     using UserObservable = rpp::grouped_observable<std::string, Proto::Event::Message, decltype(std::declval<UserSubject>().get_observable())>;
 
-    class Service final : public Proto::Server::CallbackService 
+    class Service final : public Proto::Server::CallbackService
     {
     public:
         Service() = default;
