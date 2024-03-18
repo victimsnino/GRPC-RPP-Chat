@@ -4,6 +4,7 @@
 
 #include <string>
 #include <common.hpp>
+#include <fstream>
 
 
 int main()
@@ -18,6 +19,11 @@ int main()
     builder.AddListeningPort(server_address, grpc::experimental::LocalServerCredentials(grpc_local_connect_type::LOCAL_TCP));
     builder.RegisterService(&auth_service);
     builder.RegisterService(&chat_service);
+
+    std::ofstream f{"./dump.txt"};
+    chat_service.GetEvents().subscribe([&f](const ChatService::Proto::Event& event) {
+        f << event.ShortDebugString() << std::endl;
+    });
 
     auto server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;

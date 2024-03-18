@@ -1,7 +1,3 @@
-add_executable(server_app main.cpp)
-target_link_libraries(server_app 
-    PRIVATE 
-        auth_service
-        chat_service
-        common
-)
+add_subdirectory(app)
+add_subdirectory(auth_service)
+add_subdirectory(chat_service)

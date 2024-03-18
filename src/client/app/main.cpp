@@ -46,4 +46,5 @@ int main()
         chat.SendMessage(in);
         in.clear();
     }
+    return 0;
 }

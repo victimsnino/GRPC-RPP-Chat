@@ -16,6 +16,8 @@ namespace ChatService
     public:
         Service() = default;
 
+        const rpp::dynamic_observable<Proto::Event>& GetEvents() const;
+    private:
         grpc::ServerBidiReactor<Proto::Event::Message, Proto::Event>* ChatStream(grpc::CallbackServerContext* ctx) override;
 
     private:

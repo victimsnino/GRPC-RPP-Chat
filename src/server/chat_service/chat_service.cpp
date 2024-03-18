@@ -149,4 +149,9 @@ namespace ChatService
         const auto new_handler = new Reactor(value_itr->second.get<std::string>(), m_state.user_observables, m_state.all_events);
         return new_handler;
     }
+
+    const rpp::dynamic_observable<Proto::Event>& Service::GetEvents() const {
+        return m_state.all_events;
+    }
+
 }
