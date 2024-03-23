@@ -2,7 +2,15 @@
 #include <auth_client.hpp>
 #include <chat_client.hpp>
 
-std::string Authenicate()
+#include <rpp/operators/filter.hpp>
+
+struct AuthenicationResult
+{
+    std::string token;
+    std::string login;
+};
+
+AuthenicationResult Authenicate()
 {
     while (true)
     {
@@ -15,7 +23,7 @@ std::string Authenicate()
 
         const auto result = AuthClient::Authenicate(login, password);
         if (const auto token = std::get_if<std::string>(&result))
-            return *token;
+            return {.token=*token, .login=login};
 
         if (const auto custom_error = std::get_if<AuthService::Proto::FailedLoginResponse>(&result))
         {
@@ -33,11 +41,13 @@ std::string Authenicate()
 
 int main()
 {
-    const auto token = Authenicate();
+    const auto [token, name] = Authenicate();
     std::cout << "Authenicated with token " << token << std::endl;
     ChatClient::Handler chat{token};
 
-    chat.GetEvents().subscribe([](const ChatService::Proto::Event& ev) { std::cout << ev.ShortDebugString() << std::endl; });
+    chat.GetEvents()
+    | rpp::operators::filter([&name](const ChatService::Proto::Event& ev) { return ev.user() != name;})
+    | rpp::operators::subscribe([](const ChatService::Proto::Event& ev) { std::cout << ev.ShortDebugString() << std::endl; });
 
     std::string in{};
     while(true)

@@ -31,7 +31,6 @@ namespace ChatService
             Reactor(const std::string& name, const rpp::dynamic_observer<UserObservable>& user_observables, const rpp::dynamic_observable<Proto::Event>& all_events)
                 : m_observer{InitObserver(name, user_observables)}
                 , m_disposable{all_events
-                               | rpp::ops::filter([name](const Proto::Event& user_events){return user_events.user() != name; })
                                | rpp::ops::subscribe_with_disposable([this](const Proto::Event& user_events) {
                                      std::lock_guard lock{m_write_mutex};
                                      m_write.push_back(user_events);

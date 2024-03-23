@@ -9,10 +9,15 @@
 
 int main()
 {
-    AuthService::Service auth_service{{{"test", AuthService::Service::HashPassword("test")}, {"test2", AuthService::Service::HashPassword("test")}}, Consts::g_secret_seed};
+    AuthService::Service auth_service{
+        {{"test", AuthService::Service::HashPassword("test")},
+         {"test2", AuthService::Service::HashPassword("test")},
+         {"test3", AuthService::Service::HashPassword("test")}},
+        Consts::g_secret_seed
+    };
     ChatService::Service chat_service{};
 
-    grpc::ServerBuilder  builder{};
+    grpc::ServerBuilder builder{};
 
     std::string server_address("0.0.0.0:50051");
 
