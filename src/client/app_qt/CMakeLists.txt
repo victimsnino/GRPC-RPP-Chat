@@ -1,4 +1,4 @@
 add_executable(client_app_qt main.cpp)
 
-target_link_libraries(client_app_qt PRIVATE auth_client chat_client rppqt)
+target_link_libraries(client_app_qt PRIVATE auth_client chat_client rppqt rpp)
 add_qt_support_to_executable(client_app_qt)
