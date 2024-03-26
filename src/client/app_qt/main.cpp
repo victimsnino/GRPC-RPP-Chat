@@ -72,21 +72,26 @@ int main(int argc, char* argv[])
                                                                                                    }) | rpp::operators::start_with(false))
         | rpp::operators::subscribe([=](bool valid) { login_button->setEnabled(valid); });
 
-    login_result
+    const auto handler = login_result
     | rpp::operators::filter([](const auto& result) {
         return std::holds_alternative<std::string>(result);
     })
     | rpp::operators::map([](const auto& result) {
         return std::get<std::string>(result);
     })
-    | rpp::operators::flat_map([](const auto& token) {
-        return ChatClient::Handler{token}.GetEvents();
+    | rpp::operators::map([](const auto& token) {
+        return ChatClient::Handler{token};
     })
+    | rpp::operators::multicast(rpp::subjects::replay_subject<ChatClient::Handler>{1})
+    | rpp::operators::ref_count();
+
+    handler
+    | rpp::operators::flat_map([](const ChatClient::Handler& h){ return h.GetEvents();})
     | rpp::operators::map([](const ChatService::Proto::Event& ev) { return QString::fromStdString(ev.ShortDebugString()); })
-    | rpp::operators::reduce(QString{}, [](const QString& acc, const QString& ev) { return acc + ev + "\n"; })
+    | rpp::operators::scan(QString{}, [](const QString& acc, const QString& ev) { return acc + ev + "\n"; })
     // | rpp::operators::observe_on(rppqt::schedulers::main_thread_scheduler{})
     | rpp::operators::subscribe([chat](const QString& text) { chat->setText(text); });
-
+    
     login_result
     // | rpp::operators::observe_on(rppqt::schedulers::main_thread_scheduler{})
     | rpp::operators::subscribe([=](const auto& result) {

@@ -97,47 +97,64 @@ namespace ChatClient
                 std::deque<ChatService::Proto::Event::Message> m_write{};
         };
 
-
     }
+
+    struct Handler::State
+    {
+        State(const std::string& token)
+        : state{InitState(ctx, token)}
+        {}
+
+        ~State() 
+        {
+            state.messages.on_completed(); 
+        }
+        
+        struct InnerState
+        {
+            rpp::dynamic_observable<ChatService::Proto::Event> events;
+            rpp::dynamic_observer<std::string>                 messages;
+        };
+
+    private:
+        static InnerState InitState(grpc::ClientContext& ctx, const std::string& token)
+        {
+            ctx.set_credentials(grpc::MetadataCredentialsFromPlugin(std::make_unique<Authenticator>(token)));
+
+            rpp::subjects::serialized_publish_subject<std::string>    messages{};
+            rpp::subjects::publish_subject<ChatService::Proto::Event> events{};
+
+            const auto reactor = new Reactor(messages.get_observable() | rpp::ops::map([](const std::string& txt)
+                                            {
+                                                ChatService::Proto::Event::Message m{};
+                                                m.set_text(txt);
+                                                return m;
+                                            }),
+                                            events.get_observer().as_dynamic());
+            ChatService::Proto::Server::NewStub(grpc::CreateChannel("localhost:50051", grpc::experimental::LocalCredentials(grpc_local_connect_type::LOCAL_TCP)))->async()->ChatStream(&ctx, reactor);
+            reactor->Init();
+
+            return InnerState{.events = events.get_observable().as_dynamic(), .messages = messages.get_observer().as_dynamic()};
+        }
+    public:
+        grpc::ClientContext ctx{};
+        InnerState state;
+    };
 
     Handler::Handler(const std::string& token)
-        : m_state(InitState(m_context, token))
+        : m_state{std::make_shared<Handler::State>(token)}
     {
-    }
 
-    Handler::State Handler::InitState(grpc::ClientContext& ctx, const std::string& token)
-    {
-        ctx.set_credentials(grpc::MetadataCredentialsFromPlugin(std::make_unique<Authenticator>(token)));
-
-        rpp::subjects::serialized_publish_subject<std::string>    messages{};
-        rpp::subjects::publish_subject<ChatService::Proto::Event> events{};
-
-        const auto reactor = new Reactor(messages.get_observable() | rpp::ops::map([](const std::string& txt)
-                                         {
-                                             ChatService::Proto::Event::Message m{};
-                                             m.set_text(txt);
-                                             return m;
-                                         }),
-                                         events.get_observer().as_dynamic());
-        ChatService::Proto::Server::NewStub(grpc::CreateChannel("localhost:50051", grpc::experimental::LocalCredentials(grpc_local_connect_type::LOCAL_TCP)))->async()->ChatStream(&ctx, reactor);
-        reactor->Init();
-
-        return {.events = events.get_observable().as_dynamic(), .messages = messages.get_observer().as_dynamic()};
-    }
-
-    Handler::~Handler() noexcept
-    {
-        m_state.messages.on_completed();
     }
 
     void Handler::SendMessage(const std::string& message) const
     {
-        m_state.messages.on_next(message);
+        m_state->state.messages.on_next(message);
     }
 
     const rpp::dynamic_observable<ChatService::Proto::Event>& Handler::GetEvents() const
     {
-        return m_state.events;
+        return m_state->state.events;
     }
 
 }
