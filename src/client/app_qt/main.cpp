@@ -89,8 +89,15 @@ int main(int argc, char* argv[])
     | rpp::operators::flat_map([](const ChatClient::Handler& h){ return h.GetEvents();})
     | rpp::operators::map([](const ChatService::Proto::Event& ev) { return QString::fromStdString(ev.ShortDebugString()); })
     | rpp::operators::scan(QString{}, [](const QString& acc, const QString& ev) { return acc + ev + "\n"; })
-    // | rpp::operators::observe_on(rppqt::schedulers::main_thread_scheduler{})
+    | rpp::operators::observe_on(rppqt::schedulers::main_thread_scheduler{})
     | rpp::operators::subscribe([chat](const QString& text) { chat->setText(text); });
+
+    rppqt::source::from_signal(*new_message_line, &QLineEdit::returnPressed)
+    | rpp::operators::with_latest_from([](const auto&, const ChatClient::Handler& h){return h;}, handler)
+    | rpp::operators::subscribe([new_message_line](const ChatClient::Handler& h) {
+        h.SendMessage(new_message_line->text().toStdString());
+        new_message_line->setText("");
+    });
     
     login_result
     // | rpp::operators::observe_on(rppqt::schedulers::main_thread_scheduler{})
