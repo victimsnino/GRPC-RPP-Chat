@@ -7,7 +7,6 @@ target_link_libraries(chat_client
         rpp
     PRIVATE
         common
-
 )
 
 target_include_directories(chat_client PUBLIC .)
