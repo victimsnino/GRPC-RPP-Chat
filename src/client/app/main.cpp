@@ -45,12 +45,14 @@ int main()
     std::cout << "Authenicated with token " << token << std::endl;
     ChatClient::Handler chat{token};
 
-    chat.GetEvents()
+    const auto d = chat.GetEvents()
     | rpp::operators::filter([&name](const ChatService::Proto::Event& ev) { return ev.user() != name;})
-    | rpp::operators::subscribe([](const ChatService::Proto::Event& ev) { std::cout << ev.ShortDebugString() << std::endl; });
+    | rpp::operators::subscribe_with_disposable([](const ChatService::Proto::Event& ev) { std::cout << ev.ShortDebugString() << std::endl; },  [](const std::exception_ptr& err) {
+        std::cout << "ERROR " << std::endl;
+    });
 
     std::string in{};
-    while(true)
+    while(!d.is_disposed())
     {
         std::getline(std::cin, in);
         chat.SendMessage(in);
